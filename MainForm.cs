@@ -26,7 +26,7 @@ namespace SerialJsonFilesSender
 
         public MainForm()
         {
-            logger = new SimpleLogger("log.txt");
+            logger = new SimpleLogger();
             logger.LogInfo("Application started.");
             InitializeComponent();
             if(FileWatcherEnabled) fileWatcher = new FileSystemWatcher();
