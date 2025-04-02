@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 //using System.Threading.Tasks;
 using System.Windows.Forms;
-using JsonFileUpdater;
+//using JsonFileUpdater;
 
 namespace SerialJsonFilesSender
 {
@@ -16,9 +16,9 @@ namespace SerialJsonFilesSender
         private int SEND_DELAY_MS;
         private string selectedFolderPath;
         private SerialPort serialPort;
-        private FileSystemWatcher fileWatcher;
+        //private FileSystemWatcher fileWatcher;
         private string info;
-        private bool FileWatcherEnabled = false;
+        //private bool FileWatcherEnabled = false;
         private System.Timers.Timer timer;
         private int UPDATE_DELAY_MS;
         SimpleLogger logger;
@@ -29,17 +29,18 @@ namespace SerialJsonFilesSender
             logger = new SimpleLogger();
             logger.LogInfo("Application started.");
             InitializeComponent();
-            if(FileWatcherEnabled) fileWatcher = new FileSystemWatcher();
+            //if(FileWatcherEnabled) fileWatcher = new FileSystemWatcher();
             cmbPort.DataSource = SerialPort.GetPortNames();
-            cmbBaudRate.DataSource = new int[] { 2400, 3200, 9600, 19200, 115200 };
+            //cmbBaudRate.DataSource = new int[] { 2400, 3200, 9600, 19200, 115200 };
             timer = new System.Timers.Timer();
             logger.LogInfo("Finished initialization.");
         }
 
         private void InitializeSerialPort()
         {
-            serialPort = new SerialPort(cmbPort.SelectedValue.ToString(), int.Parse(cmbBaudRate.SelectedItem.ToString()));
-            serialPort.DataReceived += SerialPort_DataReceived;
+            //serialPort = new SerialPort(cmbPort.SelectedValue.ToString(), int.Parse(cmbBaudRate.SelectedItem.ToString()));
+            serialPort = new SerialPort(cmbPort.SelectedValue.ToString(), 9600);
+            //serialPort.DataReceived += SerialPort_DataReceived;
             serialPort.Open();
             logger.LogInfo("Port opened OK");
         }
@@ -48,7 +49,7 @@ namespace SerialJsonFilesSender
         {
             if(serialPort != null)
             {
-                serialPort.DataReceived -= SerialPort_DataReceived;
+                //serialPort.DataReceived -= SerialPort_DataReceived;
                 CloseSerialPort();
                 serialPort.Dispose();
             }
@@ -88,7 +89,8 @@ namespace SerialJsonFilesSender
             }
             try
             {
-                UPDATE_DELAY_MS = int.Parse(txtDirDelay.Text);
+                //UPDATE_DELAY_MS = int.Parse(txtDirDelay.Text);
+                UPDATE_DELAY_MS = 500;
             }
             catch (Exception)
             {
@@ -247,22 +249,22 @@ namespace SerialJsonFilesSender
             isSending = false;
         }
 
-        private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
-        {
-            logger.LogInfo("Receiving data from device...");
-            string response;
-            try
-            {
-                response = StringToHexString(serialPort.ReadExisting());
-                logger.LogInfo($"Received: {response}");
-            }
-            catch (Exception ex)
-            {
-                response = $"Error reading from serial port: {ex.Message}";
-                logger.LogError(response);
-            }
-            Invoke(new Action(() => DisplayResponse(response)));
-        }
+        //private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        //{
+        //    logger.LogInfo("Receiving data from device...");
+        //    string response;
+        //    try
+        //    {
+        //        response = StringToHexString(serialPort.ReadExisting());
+        //        logger.LogInfo($"Received: {response}");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        response = $"Error reading from serial port: {ex.Message}";
+        //        logger.LogError(response);
+        //    }
+        //    Invoke(new Action(() => DisplayResponse(response)));
+        //}
         public static string StringToHexString(string input)
         {
             //byte[] bytes = Encoding.Default.GetBytes(str);
@@ -283,11 +285,11 @@ namespace SerialJsonFilesSender
             
             txtInfo.AppendText(info + Environment.NewLine);
         }
-        private void DisplayResponse(string response)
-        {
-            logger.LogInfo("Displaying response");
-            txtResponse.AppendText(response + Environment.NewLine);
-        }
+        //private void DisplayResponse(string response)
+        //{
+        //    logger.LogInfo("Displaying response");
+        //    txtResponse.AppendText(response + Environment.NewLine);
+        //}
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -353,7 +355,8 @@ namespace SerialJsonFilesSender
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            SEND_DELAY_MS = int.Parse(txtFileDelay.Text);
+            //SEND_DELAY_MS = int.Parse(txtFileDelay.Text);
+            SEND_DELAY_MS = 40;
             logger.LogInfo($"Starting upload with file delay {SEND_DELAY_MS}ms");
             if (StartUplaodJsonFiles())
             {
