@@ -13,17 +13,18 @@ namespace SerialJsonFilesSender
 {
     public partial class MainForm : Form
     {
-        private int SEND_DELAY_MS;
+        private int _fileDelayMs;
         private string selectedFolderPath;
         private SerialPort serialPort;
         //private FileSystemWatcher fileWatcher;
         private string info;
         //private bool FileWatcherEnabled = false;
         private System.Timers.Timer timer;
-        private int UPDATE_DELAY_MS;
+        private int _resendIntervalMs;
         SimpleLogger logger;
         private bool isSending;
         private int baudrate;
+        private int _writeTimeOutMs;
 
         public MainForm()
         {
@@ -35,9 +36,10 @@ namespace SerialJsonFilesSender
             //cmbBaudRate.DataSource = new int[] { 2400, 3200, 9600, 19200, 115200 };
             timer = new System.Timers.Timer();
             logger.LogInfo("Finished initialization.");
-            SEND_DELAY_MS = 40;
-            UPDATE_DELAY_MS = 500;
+            _fileDelayMs = 40;
+            _resendIntervalMs = 500;
             baudrate = 9600;
+            _writeTimeOutMs = 100;
         }
 
         private void InitializeSerialPort()
@@ -45,7 +47,7 @@ namespace SerialJsonFilesSender
             //serialPort = new SerialPort(cmbPort.SelectedValue.ToString(), int.Parse(cmbBaudRate.SelectedItem.ToString()));
             serialPort = new SerialPort(cmbPort.SelectedValue.ToString(), baudrate);
             //serialPort.DataReceived += SerialPort_DataReceived;
-            serialPort.WriteTimeout = 100;
+            serialPort.WriteTimeout = _writeTimeOutMs;
             serialPort.Open();
             logger.LogInfo("Port opened OK");
         }
@@ -100,9 +102,9 @@ namespace SerialJsonFilesSender
             //{
             //    UPDATE_DELAY_MS = 1000;
             //}
-            logger.LogInfo($"Reupload Delay Set to {UPDATE_DELAY_MS}ms");
-            Console.WriteLine($"{UPDATE_DELAY_MS}");
-            timer.Interval = UPDATE_DELAY_MS;
+            logger.LogInfo($"Reupload Delay Set to {_resendIntervalMs}ms");
+            Console.WriteLine($"{_resendIntervalMs}");
+            timer.Interval = _resendIntervalMs;
             timer.Elapsed += (sender, e) =>
             {
                 //if (chkAsync.Checked)
@@ -239,9 +241,9 @@ namespace SerialJsonFilesSender
                     logger.LogInfo($"Sending data to device ID: {idValue}");
                     serialPort.Write(bytesToSend, 0, bytesToSend.Length);
                     info = $"Sent: {file}";
-                    logger.LogInfo($"Data sent. Sleeping for {SEND_DELAY_MS}ms");
+                    logger.LogInfo($"Data sent. Sleeping for {_fileDelayMs}ms");
                     //Task.Delay(SEND_DELAY_MS).Wait();
-                    Thread.Sleep(SEND_DELAY_MS);
+                    Thread.Sleep(_fileDelayMs);
                 }
                 catch (Exception ex)
                 {
@@ -360,7 +362,7 @@ namespace SerialJsonFilesSender
         private void btnStart_Click(object sender, EventArgs e)
         {
             //SEND_DELAY_MS = int.Parse(txtFileDelay.Text);            
-            logger.LogInfo($"Starting upload with file delay {SEND_DELAY_MS}ms");
+            logger.LogInfo($"Starting upload with file delay {_fileDelayMs}ms");
             if (StartUplaodJsonFiles())
             {
                 btnStart.Enabled = false;
@@ -374,6 +376,17 @@ namespace SerialJsonFilesSender
             timer.Stop();
             btnStart.Enabled = true;
             btnStop.Enabled = false;
+        }
+
+        private void optionsMenuItem_Click(object sender, EventArgs e)
+        {
+            OptionsForm optionsForm = new OptionsForm(_fileDelayMs, _resendIntervalMs, _writeTimeOutMs);
+            if (optionsForm.ShowDialog() == DialogResult.OK)
+            {
+                _fileDelayMs = optionsForm.FileDelayMs;
+                _resendIntervalMs = optionsForm.ResendIntervalMs;
+                _writeTimeOutMs = optionsForm.WriteTimeOutMs;
+            }
         }
     }
 }
