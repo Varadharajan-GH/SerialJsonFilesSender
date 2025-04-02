@@ -23,6 +23,7 @@ namespace SerialJsonFilesSender
         private int UPDATE_DELAY_MS;
         SimpleLogger logger;
         private bool isSending;
+        private int baudrate;
 
         public MainForm()
         {
@@ -34,13 +35,17 @@ namespace SerialJsonFilesSender
             //cmbBaudRate.DataSource = new int[] { 2400, 3200, 9600, 19200, 115200 };
             timer = new System.Timers.Timer();
             logger.LogInfo("Finished initialization.");
+            SEND_DELAY_MS = 40;
+            UPDATE_DELAY_MS = 500;
+            baudrate = 9600;
         }
 
         private void InitializeSerialPort()
         {
             //serialPort = new SerialPort(cmbPort.SelectedValue.ToString(), int.Parse(cmbBaudRate.SelectedItem.ToString()));
-            serialPort = new SerialPort(cmbPort.SelectedValue.ToString(), 9600);
+            serialPort = new SerialPort(cmbPort.SelectedValue.ToString(), baudrate);
             //serialPort.DataReceived += SerialPort_DataReceived;
+            serialPort.WriteTimeout = 100;
             serialPort.Open();
             logger.LogInfo("Port opened OK");
         }
@@ -86,16 +91,15 @@ namespace SerialJsonFilesSender
                 MessageBox.Show($"Select a valid folder to Upload files from.");
                 logger.LogError("Dir not selected. Returning.");
                 return false;
-            }
-            try
-            {
-                //UPDATE_DELAY_MS = int.Parse(txtDirDelay.Text);
-                UPDATE_DELAY_MS = 500;
-            }
-            catch (Exception)
-            {
-                UPDATE_DELAY_MS = 1000;
-            }
+            }            
+            //try
+            //{
+            //    UPDATE_DELAY_MS = int.Parse(txtDirDelay.Text);                
+            //}
+            //catch (Exception)
+            //{
+            //    UPDATE_DELAY_MS = 1000;
+            //}
             logger.LogInfo($"Reupload Delay Set to {UPDATE_DELAY_MS}ms");
             Console.WriteLine($"{UPDATE_DELAY_MS}");
             timer.Interval = UPDATE_DELAY_MS;
@@ -355,8 +359,7 @@ namespace SerialJsonFilesSender
 
         private void btnStart_Click(object sender, EventArgs e)
         {
-            //SEND_DELAY_MS = int.Parse(txtFileDelay.Text);
-            SEND_DELAY_MS = 40;
+            //SEND_DELAY_MS = int.Parse(txtFileDelay.Text);            
             logger.LogInfo($"Starting upload with file delay {SEND_DELAY_MS}ms");
             if (StartUplaodJsonFiles())
             {
