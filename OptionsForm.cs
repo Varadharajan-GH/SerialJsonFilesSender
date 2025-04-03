@@ -15,8 +15,9 @@ namespace SerialJsonFilesSender
         public int FileDelayMs { get; private set; }
         public int ResendIntervalMs { get; private set; }
         public int WriteTimeOutMs { get; private set; }
+        public int BaudRate { get; set; }
 
-        public OptionsForm(int fileDelay, int resendInterval, int writeTimeOutMs)
+        public OptionsForm(int fileDelay, int resendInterval, int writeTimeOutMs, int baudRate)
         {
             InitializeComponent();
             FileDelayMs = fileDelay;
@@ -25,6 +26,7 @@ namespace SerialJsonFilesSender
             txtFileDelay.Text = FileDelayMs.ToString();
             txtDirDelay.Text = ResendIntervalMs.ToString();
             txtWriteTimeout.Text = WriteTimeOutMs.ToString();
+            BaudRate = baudRate;
         }
 
         private void btnOk_Click(object sender, EventArgs e)
@@ -33,7 +35,8 @@ namespace SerialJsonFilesSender
             {
                 FileDelayMs = int.Parse(txtFileDelay.Text);
                 ResendIntervalMs = int.Parse(txtDirDelay.Text);
-                WriteTimeOutMs = int.Parse(txtWriteTimeout.Text);   
+                WriteTimeOutMs = int.Parse(txtWriteTimeout.Text);
+                BaudRate = int.Parse(txtBaudRate.Text);
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }

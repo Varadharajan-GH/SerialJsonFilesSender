@@ -37,12 +37,14 @@
             this.lblInfo = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.txtWriteTimeout = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.txtBaudRate = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(36, 35);
+            this.label1.Location = new System.Drawing.Point(35, 35);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(120, 13);
             this.label1.TabIndex = 0;
@@ -58,7 +60,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(35, 66);
+            this.label2.Location = new System.Drawing.Point(35, 61);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(104, 13);
             this.label2.TabIndex = 0;
@@ -66,14 +68,14 @@
             // 
             // txtDirDelay
             // 
-            this.txtDirDelay.Location = new System.Drawing.Point(162, 63);
+            this.txtDirDelay.Location = new System.Drawing.Point(162, 58);
             this.txtDirDelay.Name = "txtDirDelay";
             this.txtDirDelay.Size = new System.Drawing.Size(73, 20);
             this.txtDirDelay.TabIndex = 1;
             // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(39, 137);
+            this.btnOk.Location = new System.Drawing.Point(39, 161);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 2;
@@ -83,7 +85,7 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(160, 137);
+            this.btnCancel.Location = new System.Drawing.Point(160, 161);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 3;
@@ -103,7 +105,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(34, 97);
+            this.label3.Location = new System.Drawing.Point(34, 87);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(95, 13);
             this.label3.TabIndex = 0;
@@ -111,10 +113,26 @@
             // 
             // txtWriteTimeout
             // 
-            this.txtWriteTimeout.Location = new System.Drawing.Point(162, 94);
+            this.txtWriteTimeout.Location = new System.Drawing.Point(162, 84);
             this.txtWriteTimeout.Name = "txtWriteTimeout";
             this.txtWriteTimeout.Size = new System.Drawing.Size(73, 20);
             this.txtWriteTimeout.TabIndex = 1;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(34, 113);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(58, 13);
+            this.label4.TabIndex = 0;
+            this.label4.Text = "Baud Rate";
+            // 
+            // txtBaudRate
+            // 
+            this.txtBaudRate.Location = new System.Drawing.Point(162, 110);
+            this.txtBaudRate.Name = "txtBaudRate";
+            this.txtBaudRate.Size = new System.Drawing.Size(73, 20);
+            this.txtBaudRate.TabIndex = 1;
             // 
             // OptionsForm
             // 
@@ -124,7 +142,9 @@
             this.Controls.Add(this.lblInfo);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOk);
+            this.Controls.Add(this.txtBaudRate);
             this.Controls.Add(this.txtWriteTimeout);
+            this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.txtDirDelay);
             this.Controls.Add(this.label2);
@@ -148,5 +168,7 @@
         private System.Windows.Forms.Label lblInfo;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox txtWriteTimeout;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox txtBaudRate;
     }
 }

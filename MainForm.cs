@@ -23,7 +23,7 @@ namespace SerialJsonFilesSender
         private int _resendIntervalMs;
         SimpleLogger logger;
         private bool isSending;
-        private int baudrate;
+        private int _baudrate;
         private int _writeTimeOutMs;
 
         public MainForm()
@@ -31,23 +31,31 @@ namespace SerialJsonFilesSender
             logger = new SimpleLogger();
             logger.LogInfo("Application started.");
             InitializeComponent();
-            //if(FileWatcherEnabled) fileWatcher = new FileSystemWatcher();
             cmbPort.DataSource = SerialPort.GetPortNames();
-            //cmbBaudRate.DataSource = new int[] { 2400, 3200, 9600, 19200, 115200 };
             timer = new System.Timers.Timer();
             logger.LogInfo("Finished initialization.");
-            _fileDelayMs = 40;
-            _resendIntervalMs = 500;
-            baudrate = 9600;
-            _writeTimeOutMs = 100;
+            try
+            {
+                _fileDelayMs = Properties.Settings.Default.FileSendDelayMs;
+                _resendIntervalMs = Properties.Settings.Default.ResendIntervalMs;
+                _baudrate = Properties.Settings.Default.BaudRate;
+                _writeTimeOutMs = Properties.Settings.Default.WriteTimeout;
+            }
+            catch (Exception)
+            {
+                _fileDelayMs = 40;
+                _resendIntervalMs = 500;
+                _baudrate = 9600;
+                _writeTimeOutMs = 100;
+            }
         }
 
         private void InitializeSerialPort()
         {
             //serialPort = new SerialPort(cmbPort.SelectedValue.ToString(), int.Parse(cmbBaudRate.SelectedItem.ToString()));
-            serialPort = new SerialPort(cmbPort.SelectedValue.ToString(), baudrate);
-            //serialPort.DataReceived += SerialPort_DataReceived;
-            serialPort.WriteTimeout = _writeTimeOutMs;
+            serialPort = new SerialPort(cmbPort.SelectedValue.ToString(), _baudrate);
+            serialPort.DataReceived += SerialPort_DataReceived;
+            //serialPort.WriteTimeout = _writeTimeOutMs;
             serialPort.Open();
             logger.LogInfo("Port opened OK");
         }
@@ -56,7 +64,7 @@ namespace SerialJsonFilesSender
         {
             if(serialPort != null)
             {
-                //serialPort.DataReceived -= SerialPort_DataReceived;
+                serialPort.DataReceived -= SerialPort_DataReceived;
                 CloseSerialPort();
                 serialPort.Dispose();
             }
@@ -102,19 +110,11 @@ namespace SerialJsonFilesSender
             //{
             //    UPDATE_DELAY_MS = 1000;
             //}
-            logger.LogInfo($"Reupload Delay Set to {_resendIntervalMs}ms");
+            logger.LogInfo($"Resend Interval Set to {_resendIntervalMs}ms");
             Console.WriteLine($"{_resendIntervalMs}");
             timer.Interval = _resendIntervalMs;
             timer.Elapsed += (sender, e) =>
             {
-                //if (chkAsync.Checked)
-                //{
-                //    //await SendFilesAsync();
-                //}
-                //else
-                //{
-                //    //SendFiles();
-                //}
                 if (!isSending) SendFiles();
             };
             logger.LogInfo("Restarting Timer.");
@@ -232,7 +232,7 @@ namespace SerialJsonFilesSender
             List<string> jsonFiles = Directory.GetFiles(selectedFolderPath, "*.json").ToList();
             foreach (string file in jsonFiles)
             {
-                logger.LogInfo($"Processing file: {file}");
+                logger.LogInfo($"Processing file: {Path.GetFileName(file)}");
                 try
                 {
                     string jsonData = File.ReadAllText(file);
@@ -241,7 +241,7 @@ namespace SerialJsonFilesSender
                     logger.LogInfo($"Sending data to device ID: {idValue}");
                     serialPort.Write(bytesToSend, 0, bytesToSend.Length);
                     info = $"Sent: {file}";
-                    logger.LogInfo($"Data sent. Sleeping for {_fileDelayMs}ms");
+                    logger.LogInfo($"Data sent. Delaying for {_fileDelayMs}ms");
                     //Task.Delay(SEND_DELAY_MS).Wait();
                     Thread.Sleep(_fileDelayMs);
                 }
@@ -255,22 +255,22 @@ namespace SerialJsonFilesSender
             isSending = false;
         }
 
-        //private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
-        //{
-        //    logger.LogInfo("Receiving data from device...");
-        //    string response;
-        //    try
-        //    {
-        //        response = StringToHexString(serialPort.ReadExisting());
-        //        logger.LogInfo($"Received: {response}");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        response = $"Error reading from serial port: {ex.Message}";
-        //        logger.LogError(response);
-        //    }
-        //    Invoke(new Action(() => DisplayResponse(response)));
-        //}
+        private void SerialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            logger.LogInfo("Receiving data from device...");
+            string response;
+            try
+            {
+                response = StringToHexString(serialPort.ReadExisting());
+                logger.LogInfo($"Received: {response}");
+            }
+            catch (Exception ex)
+            {
+                response = $"Error reading from serial port: {ex.Message}";
+                logger.LogError(response);
+            }
+            Invoke(new Action(() => DisplayResponse(response)));
+        }
         public static string StringToHexString(string input)
         {
             //byte[] bytes = Encoding.Default.GetBytes(str);
@@ -291,11 +291,11 @@ namespace SerialJsonFilesSender
             
             txtInfo.AppendText(info + Environment.NewLine);
         }
-        //private void DisplayResponse(string response)
-        //{
-        //    logger.LogInfo("Displaying response");
-        //    txtResponse.AppendText(response + Environment.NewLine);
-        //}
+        private void DisplayResponse(string response)
+        {
+            logger.LogInfo("Response: " + response);
+            //txtResponse.AppendText(response + Environment.NewLine);
+        }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -380,12 +380,19 @@ namespace SerialJsonFilesSender
 
         private void optionsMenuItem_Click(object sender, EventArgs e)
         {
-            OptionsForm optionsForm = new OptionsForm(_fileDelayMs, _resendIntervalMs, _writeTimeOutMs);
+            OptionsForm optionsForm = new OptionsForm(_fileDelayMs, _resendIntervalMs, _writeTimeOutMs, _baudrate);
             if (optionsForm.ShowDialog() == DialogResult.OK)
             {
                 _fileDelayMs = optionsForm.FileDelayMs;
                 _resendIntervalMs = optionsForm.ResendIntervalMs;
                 _writeTimeOutMs = optionsForm.WriteTimeOutMs;
+                _baudrate = optionsForm.BaudRate;
+                Properties.Settings.Default.WriteTimeout = _writeTimeOutMs;
+                Properties.Settings.Default.FileSendDelayMs = _fileDelayMs;
+                Properties.Settings.Default.ResendIntervalMs = _resendIntervalMs;
+                Properties.Settings.Default.BaudRate = _baudrate;
+                Properties.Settings.Default.Save();
+                logger.LogInfo($"Options set: FileDelayMs: {_fileDelayMs}, ResendIntervalMs: {_resendIntervalMs}, BaudRate: {_baudrate}");
             }
         }
     }
