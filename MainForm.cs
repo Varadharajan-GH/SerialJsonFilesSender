@@ -24,7 +24,7 @@ namespace SerialJsonFilesSender
         SimpleLogger logger;
         private bool isSending;
         private int _baudrate;
-        private int _writeTimeOutMs;
+        //private int _writeTimeOutMs;
 
         public MainForm()
         {
@@ -39,14 +39,14 @@ namespace SerialJsonFilesSender
                 _fileDelayMs = Properties.Settings.Default.FileSendDelayMs;
                 _resendIntervalMs = Properties.Settings.Default.ResendIntervalMs;
                 _baudrate = Properties.Settings.Default.BaudRate;
-                _writeTimeOutMs = Properties.Settings.Default.WriteTimeout;
+                //_writeTimeOutMs = Properties.Settings.Default.WriteTimeout;
             }
             catch (Exception)
             {
-                _fileDelayMs = 40;
-                _resendIntervalMs = 500;
+                _fileDelayMs = 95;
+                _resendIntervalMs = 900;
                 _baudrate = 9600;
-                _writeTimeOutMs = 100;
+                //_writeTimeOutMs = 100;
             }
         }
 
@@ -380,14 +380,14 @@ namespace SerialJsonFilesSender
 
         private void optionsMenuItem_Click(object sender, EventArgs e)
         {
-            OptionsForm optionsForm = new OptionsForm(_fileDelayMs, _resendIntervalMs, _writeTimeOutMs, _baudrate);
+            OptionsForm optionsForm = new OptionsForm(_fileDelayMs, _resendIntervalMs, _baudrate);
             if (optionsForm.ShowDialog() == DialogResult.OK)
             {
                 _fileDelayMs = optionsForm.FileDelayMs;
                 _resendIntervalMs = optionsForm.ResendIntervalMs;
-                _writeTimeOutMs = optionsForm.WriteTimeOutMs;
+                //_writeTimeOutMs = optionsForm.WriteTimeOutMs;
                 _baudrate = optionsForm.BaudRate;
-                Properties.Settings.Default.WriteTimeout = _writeTimeOutMs;
+                //Properties.Settings.Default.WriteTimeout = _writeTimeOutMs;
                 Properties.Settings.Default.FileSendDelayMs = _fileDelayMs;
                 Properties.Settings.Default.ResendIntervalMs = _resendIntervalMs;
                 Properties.Settings.Default.BaudRate = _baudrate;
